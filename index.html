@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Programming Laboratory - T.pavan kuamr</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+            position: relative;
+            z-index: 10;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-section {
+            padding: 32px 24px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .profile-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid transparent;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6) border-box;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+        }
+
+        .profile-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-img .initials {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .online-indicator {
+            width: 14px;
+            height: 14px;
+            background: #10b981;
+            border: 3px solid #1e293b;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        }
+
+        .profile-info h1 {
+            color: #f1f5f9;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .profile-info p {
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .weeks-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+            max-height: calc(100vh - 250px);
+        }
+
+        .weeks-section::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .weeks-section::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .weeks-section::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+        }
+
+        .weeks-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+        }
+
+        .weeks-header {
+            padding: 12px 24px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .week-item {
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 3px solid transparent;
+            color: #94a3b8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .week-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
+            transition: width 0.3s ease;
+        }
+
+        .week-item:hover::before {
+            width: 100%;
+        }
+
+        .week-item:hover {
+            color: #f1f5f9;
+            background: rgba(59, 130, 246, 0.05);
+            transform: translateX(4px);
+        }
+
+        .week-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-left-color: #3b82f6;
+            color: #f1f5f9;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .week-item.active::before {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+        }
+
+        .week-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .week-item:hover svg:first-child {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .week-item span {
+            font-size: 15px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .week-item .arrow {
+            width: 16px;
+            height: 16px;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.3s ease;
+        }
+
+        .week-item:hover .arrow,
+        .week-item.active .arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0f172a;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-bar h2 {
+            color: #f1f5f9;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .top-bar p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .top-bar-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .top-bar-info .badge {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            color: #60a5fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .top-bar-info .badge:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .pdf-viewer {
+            background: #1e293b;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            max-width: 100%;
+            margin: 0 auto;
+            height: calc(100vh - 150px);
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .pdf-viewer:hover {
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+        }
+
+        .footer-section {
+            padding: 20px 24px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 500;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                height: 100%;
+                transition: left 0.3s ease;
+                z-index: 100;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .pdf-viewer {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-header">
+                <div class="profile-img">
+                    <img src="profile.jpg" alt="THOTA PAVAN KUMAR" onerror="imageError()" onload="imageLoaded()">
+                    <div class="initials">TP</div>
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="profile-info">
+                    <h1>THOTA PAVAN KUMAR</h1>
+                    <p>Roll: 248W5A1213</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="weeks-section">
+            <div class="weeks-header">Weeks</div>
+            
+            <div class="week-item active" onclick="selectWeek(1)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 1</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(2)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 2</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(3)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 3</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(4)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 4</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(5)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 5</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(6)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 6</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(7)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 7</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(8)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 8</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(9)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 9</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(10)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 10</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(11)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 11</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+
+            <div class="week-item" onclick="selectWeek(12)">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+                <span>Week 12</span>
+                <svg class="arrow" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            Java Programming Laboratory
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div>
+                <h2 id="weekTitle">Week 1</h2>
+                <p>Laboratory Record</p>
+            </div>
+            <div class="top-bar-info">
+                <div class="badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    Java Lab
+                </div>
+                <button class="download-btn" onclick="downloadWeek()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="pdf-viewer" id="pdfContent">
+                <iframe id="pdfFrame" style="width: 100%; height: 100%; border: none; border-radius: 12px;" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weekData = {
+            1: { title: 'Introduction to Java Basics', topic: 'Week 1' },
+            2: { title: 'PreparedStatement Operations', topic: 'Week 2' },
+            3: { title: 'Object-Oriented Programming', topic: 'Week 3' },
+            4: { title: 'Exception Handling', topic: 'Week 4' },
+            5: { title: 'Collections Framework', topic: 'Week 5' },
+            6: { title: 'Multithreading', topic: 'Week 6' },
+            7: { title: 'File I/O Operations', topic: 'Week 7' },
+            8: { title: 'JDBC Connectivity', topic: 'Week 8' },
+            9: { title: 'Servlets', topic: 'Week 9' },
+            10: { title: 'JSP (JavaServer Pages)', topic: 'Week 10' },
+            11: { title: 'Spring Framework Basics', topic: 'Week 11' },
+            12: { title: 'REST API Development', topic: 'Week 12' }
+        };
+
+        let currentWeek = 1;
+
+        function imageLoaded() {
+            const img = document.querySelector('.profile-img img');
+            const initials = document.querySelector('.profile-img .initials');
+            if (img && initials) {
+                img.style.display = 'block';
+                initials.style.display = 'none';
+            }
+        }
+
+        function imageError() {
+            const img = document.querySelector('.profile-img img');
+            const initials = document.querySelector('.profile-img .initials');
+            if (img && initials) {
+                img.style.display = 'none';
+                initials.style.display = 'flex';
+            }
+        }
+
+        function selectWeek(weekNum) {
+            currentWeek = weekNum;
+            
+            document.querySelectorAll('.week-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (index === weekNum - 1) {
+                    item.classList.add('active');
+                }
+            });
+
+            document.getElementById('weekTitle').textContent = weekData[weekNum].topic;
+            
+            const pdfFrame = document.getElementById('pdfFrame');
+            pdfFrame.src = `pdfs/week-${weekNum}.pdf`;
+        }
+
+        function downloadWeek() {
+            const link = document.createElement('a');
+            link.href = `pdfs/week-${currentWeek}.pdf`;
+            link.download = `Week-${currentWeek}-Lab.pdf`;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            selectWeek(1);
+        });
+    </script>
+</body>
+</html>
